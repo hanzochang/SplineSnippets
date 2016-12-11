@@ -21,6 +21,7 @@ struct FSplineUnit
 {
     GENERATED_BODY()
     
+public:
     UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
     ESplineUnit WaveType;
 
@@ -38,4 +39,6 @@ struct FSplineUnit
     
     UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
     int32 Density;
+
+	static FString ToString(FSplineUnit SplineUnit);
 };
