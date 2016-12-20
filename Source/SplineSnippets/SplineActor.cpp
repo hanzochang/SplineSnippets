@@ -3,34 +3,40 @@
 #include "SplineSnippets.h"
 #include "SplineActor.h"
 
-
 // Sets default values
 ASplineActor::ASplineActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	SplineUnits = GenerateInitialSplineUnits(10);
 
-	TArray<FVector> Points;
-	for (auto i = 0; i < 5; i++) {
-		FVector TmpVector = FVector(i * 100);
-		Points.Push(TmpVector);
-	}
-
-	SM = CreateDefaultSubobject<UStaticMeshComponent>(FName("SM"));
-	SetRootComponent(SM);
-
+	// Set Static Mesh include Spline Component
+	SetRootComponent(CreateDefaultSubobject<UStaticMeshComponent>(FName("SM")));
     MySpline = CreateDefaultSubobject<USplineComponent>(FName("MySpline"));
 	MySpline->SetupAttachment(SM);
-
-	MySpline->SetSplinePoints(Points, ESplineCoordinateSpace::Type::Local);
 }
 
 // Called when the game starts or when spawned
 void ASplineActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	SplineUnits = GenerateInitialSplineUnits(10);
+
+	TArray<FVector> SplinePoints;
+	for (auto SplineUnit : SplineUnits)
+	{
+		SplinePoints.Push(SplineUnit.Distance);
+	};
+
+	MySpline->SetSplinePoints(SplinePoints, ESplineCoordinateSpace::Type::Local);
+
+	for (auto i = 0 ; i < MySpline->GetNumSplinePoints(); i++) {
+		// TODO あしたはここから
+		//GetWorld()->SpawnActor<T>(FVector(1.0f), FVector(1.0), SpawnInfo);
+		//UFunction??
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 255, 255, 255), FString::FromInt(MySpline->GetNumSplinePoints()));
+	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 0, 0, 255), FString::FromInt(SplineUnits.Num()));
 }
 
 // Called every frame
@@ -54,18 +60,16 @@ TArray<FSplineUnit> ASplineActor::GenerateInitialSplineUnits(int TestNum)
 		SplineUnitTmp.MinWidth = 0;
 		SplineUnitTmp.Density = 10;
 
-		SplineUnitsTmp.Push(SplineUnitTmp);
+		FVector UnitVector = FVector(0, 100.0f, 0);
+		if (i % 2 == 1) {
+			SplineUnitTmp.Distance = UnitVector * i * -1;
+		}
+		else {
+			SplineUnitTmp.Distance = UnitVector * i;
+		}
 
-		FVector UnitVector = FVector(1.0f);
-		SplineUnitTmp.Distance = UnitVector * i;
 		SplineUnitsTmp.Push(SplineUnitTmp);
-		GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 255, 255, 255), FSplineUnit::ToString(SplineUnitTmp));
-
-		//UE_LOG(LogTemp, Warning, TEXT("output : %s"), L"ログの内容");
-		//OutputDebugString("テスト%d", SplineUnitTmp); //ここから
-		//	FMath::RandRange(1.0f, 2.0f)(float);
-		//GEngine->AddOnScreenDebugMessage((uint64)-1, 10.f, FLinearColor::Red.ToFColor(true), 'waa');
-		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor(255, 255, 255, 255), "TstMan");
+		GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(0, 0, 255, 255), FString::FromInt(SplineUnitsTmp.Num()));
     }
 
 	return SplineUnitsTmp;
