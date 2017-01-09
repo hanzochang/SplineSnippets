@@ -7,6 +7,7 @@
 #include "Components/SplineComponent.h"
 #include "SplineActor.generated.h"
 
+
 UCLASS()
 class SPLINESNIPPETS_API ASplineActor : public AActor
 {
@@ -35,4 +36,10 @@ public:
 	
 	//UPROPERTY(VisibleAnyWhere)
 	TArray<FSplineUnit> GenerateInitialSplineUnits(int TestNum);
+
+	//UPROPERTY(BlueprintReadWrite)
+	TSubclassOf<class DebugGrid> DebugGrid;
+
+	UPROPERTY(EditAnywhere, Category = General)
+    TSubclassOf<class AActor> WhatToSpawn;
 };

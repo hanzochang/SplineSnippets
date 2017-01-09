@@ -13,6 +13,18 @@ ASplineActor::ASplineActor()
 	SetRootComponent(CreateDefaultSubobject<UStaticMeshComponent>(FName("SM")));
     MySpline = CreateDefaultSubobject<USplineComponent>(FName("MySpline"));
 	MySpline->SetupAttachment(SM);
+
+	static ConstructorHelpers::FObjectFinder<UBlueprint> DebugGridClassFinder( TEXT( "Blueprint'/Game/T_DebugGrid.T_DebugGrid'" ) );
+	//spawn‚³‚¹‚æ‚¤‚Æ‚·‚é‚Æ—Ž‚¿‚éA‚È‚Ì‚Å‚±‚±‚¾‚¯BeginPlay‚ÉˆÚs‚³‚¹‚ê‚Î‚¢‚¯‚é‚ñ‚¶‚á‚Ë
+
+
+	if (DebugGridClassFinder.Succeeded())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 0, 0, 255), TEXT("Hello World: "));
+		//DebugGrid = DebugGridClassFinder.Object->GetClass();
+		WhatToSpawn = (UClass*)DebugGridClassFinder.Object->GeneratedClass;
+		//DebugGrid = DebugGridClassFinder.Object->GetClass();
+	}
 }
 
 // Called when the game starts or when spawned
@@ -35,8 +47,22 @@ void ASplineActor::BeginPlay()
 		//UFunction??
 	}
 
+
 	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 255, 255, 255), FString::FromInt(MySpline->GetNumSplinePoints()));
 	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 0, 0, 255), FString::FromInt(SplineUnits.Num()));
+
+
+	//GetWorld()->SpawnActor(DebugGridClassFinder.Object->GetClass());
+	FVector Location = { 0.0, 0.0, 0.0 };
+	FRotator Rotation = { 0.0, 0.0, 0.0 };
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = Instigator;
+	SpawnParams.bNoCollisionFail = true;
+
+	//GetWorld()->SpawnActor(DebugGrid);
+	AActor* const SpawningObject = GetWorld()->SpawnActor<AActor>(WhatToSpawn, Location, Rotation, SpawnParams);
+
 }
 
 // Called every frame
