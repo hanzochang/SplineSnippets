@@ -10,20 +10,20 @@
  * @returns Strint
  */
 
-FString FSplineUnit::ToString(FSplineUnit SplineUnit)
+FString FSplineUnit::ToDebugString()
 {
 	FString Result;
 	Result =
-		"Distance: " + SplineUnit.Distance.ToString() + "  |   "  +
-		"Density: " + FString::FromInt(SplineUnit.Density) + "  |   " + 
-		"MaxWidth: " + FString::SanitizeFloat(SplineUnit.MaxWidth) + "  |   " + 
-		"MaxWidth: " + FString::SanitizeFloat(SplineUnit.MinWidth) + "  |   " +
-		"Msec: " + FString::SanitizeFloat(SplineUnit.Msec);
+		"Distance: " + Distance.ToString() + "  |   "  +
+		"Density: " + FString::FromInt(Density) + "  |   " + 
+		"MaxWidth: " + FString::SanitizeFloat(MaxWidth) + "  |   " + 
+		"MaxWidth: " + FString::SanitizeFloat(MinWidth) + "  |   " +
+		"Msec: " + FString::SanitizeFloat(Msec);
 
 	return Result;
 }
 
-FVector FSplineUnit::BetweenPoints(FSplineUnit SplineUnit)
+FVector FSplineUnit::BetweenPoints()
 {
-	return SplineUnit.Distance / SplineUnit.Density;
+	return Distance / Density;
 }

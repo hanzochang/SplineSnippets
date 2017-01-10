@@ -46,9 +46,6 @@ public:
     int32 Density;
 
 public:
-	static FString ToString(FSplineUnit SplineUnit);
-
-public:
-	// TODO リファクタリング SplineUnitはclassにしていいのでは？
-	static FVector BetweenPoints(FSplineUnit SplineUnit);
+	FString ToDebugString();
+	FVector BetweenPoints();
 };

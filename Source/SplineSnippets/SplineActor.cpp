@@ -32,7 +32,7 @@ void ASplineActor::BeginPlay()
 			float rand = FMath::FRandRange(SplineUnit.MinWidth, SplineUnit.MaxWidth);
 			FVector RandWidth = FVector(1.0f, 1.0f, 1.0f) * rand;
 			GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 255, 255, 255), FString::SanitizeFloat(rand));
-			SplinePoints.Push(SplineUnit.BetweenPoints(SplineUnit) * i + RandWidth);
+			SplinePoints.Push(SplineUnit.BetweenPoints() * i + RandWidth);
 		}
 		//SplinePoints.Push(SplineUnit.Distance);
 	};

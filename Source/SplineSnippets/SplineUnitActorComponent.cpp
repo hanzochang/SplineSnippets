@@ -20,21 +20,3 @@ void USplineUnitActorComponent::TickComponent( float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 }
-
-FString USplineUnitActorComponent::ToDebugString()
-{
-	FString Result;
-	Result =
-		"Distance: " + Distance.ToString() + "  |   "  +
-		"Density: " + FString::FromInt(Density) + "  |   " + 
-		"MaxWidth: " + FString::SanitizeFloat(MaxWidth) + "  |   " + 
-		"MaxWidth: " + FString::SanitizeFloat(MinWidth) + "  |   " +
-		"Msec: " + FString::SanitizeFloat(Msec);
-
-	return Result;
-}
-
-FVector USplineUnitActorComponent::BetweenPoints()
-{
-	return Distance / Density;
-}

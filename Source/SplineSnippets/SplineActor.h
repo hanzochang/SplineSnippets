@@ -39,9 +39,6 @@ public:
 	UPROPERTY(VisibleAnyWhere)
 	TArray<FSplineUnit> SplineUnits;
 	
-	//UPROPERTY(BlueprintReadWrite)
-	TSubclassOf<class DebugGrid> DebugGrid;
-
 	UPROPERTY(EditAnywhere, Category = General)
     TSubclassOf<class AActor> WhatToSpawn;
 };
