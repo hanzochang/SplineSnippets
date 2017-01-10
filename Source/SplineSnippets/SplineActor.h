@@ -24,6 +24,7 @@ private:
 
 	void SetDebugGridsEachSplinePoints(int PointNum);
 	void ASplineActor::LoadDebugGrid();
+	TArray<FSplineUnit> GenerateInitialSplineUnits(int TestNum);
 	
 public:	
 	// Sets default values for this actor's properties
@@ -38,9 +39,6 @@ public:
 	UPROPERTY(VisibleAnyWhere)
 	TArray<FSplineUnit> SplineUnits;
 	
-	//UPROPERTY(VisibleAnyWhere)
-	TArray<FSplineUnit> GenerateInitialSplineUnits(int TestNum);
-
 	//UPROPERTY(BlueprintReadWrite)
 	TSubclassOf<class DebugGrid> DebugGrid;
 

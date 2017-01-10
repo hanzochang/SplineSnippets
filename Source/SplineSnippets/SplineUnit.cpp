@@ -22,3 +22,8 @@ FString FSplineUnit::ToString(FSplineUnit SplineUnit)
 
 	return Result;
 }
+
+FVector FSplineUnit::BetweenPoints(FSplineUnit SplineUnit)
+{
+	return SplineUnit.Distance / SplineUnit.Density;
+}
