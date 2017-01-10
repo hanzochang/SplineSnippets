@@ -20,6 +20,10 @@ protected:
 	UPROPERTY(VisibleAnyWhere)
 	UStaticMeshComponent* SM;
 
+private:
+
+	void SetDebugGridsEachSplinePoints(int PointNum);
+	void ASplineActor::LoadDebugGrid();
 	
 public:	
 	// Sets default values for this actor's properties

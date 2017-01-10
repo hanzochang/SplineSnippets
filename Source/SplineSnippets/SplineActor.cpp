@@ -14,24 +14,14 @@ ASplineActor::ASplineActor()
     MySpline = CreateDefaultSubobject<USplineComponent>(FName("MySpline"));
 	MySpline->SetupAttachment(SM);
 
-	static ConstructorHelpers::FObjectFinder<UBlueprint> DebugGridClassFinder( TEXT( "Blueprint'/Game/T_DebugGrid.T_DebugGrid'" ) );
-	//spawn‚³‚¹‚æ‚¤‚Æ‚·‚é‚Æ—Ž‚¿‚éA‚È‚Ì‚Å‚±‚±‚¾‚¯BeginPlay‚ÉˆÚs‚³‚¹‚ê‚Î‚¢‚¯‚é‚ñ‚¶‚á‚Ë
-
-
-	if (DebugGridClassFinder.Succeeded())
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 0, 0, 255), TEXT("Hello World: "));
-		//DebugGrid = DebugGridClassFinder.Object->GetClass();
-		WhatToSpawn = (UClass*)DebugGridClassFinder.Object->GeneratedClass;
-		//DebugGrid = DebugGridClassFinder.Object->GetClass();
-	}
+	LoadDebugGrid();
 }
 
 // Called when the game starts or when spawned
 void ASplineActor::BeginPlay()
 {
 	Super::BeginPlay();
-	SplineUnits = GenerateInitialSplineUnits(10);
+	SplineUnits = GenerateInitialSplineUnits(100);
 
 	TArray<FVector> SplinePoints;
 	for (auto SplineUnit : SplineUnits)
@@ -42,27 +32,11 @@ void ASplineActor::BeginPlay()
 	MySpline->SetSplinePoints(SplinePoints, ESplineCoordinateSpace::Type::Local);
 
 	for (auto i = 0 ; i < MySpline->GetNumSplinePoints(); i++) {
-		// TODO ‚ ‚µ‚½‚Í‚±‚±‚©‚ç
-		//GetWorld()->SpawnActor<T>(FVector(1.0f), FVector(1.0), SpawnInfo);
-		//UFunction??
+		SetDebugGridsEachSplinePoints(i);
 	}
-
 
 	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 255, 255, 255), FString::FromInt(MySpline->GetNumSplinePoints()));
 	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 0, 0, 255), FString::FromInt(SplineUnits.Num()));
-
-
-	//GetWorld()->SpawnActor(DebugGridClassFinder.Object->GetClass());
-	FVector Location = { 0.0, 0.0, 0.0 };
-	FRotator Rotation = { 0.0, 0.0, 0.0 };
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
-	SpawnParams.Instigator = Instigator;
-	SpawnParams.bNoCollisionFail = true;
-
-	//GetWorld()->SpawnActor(DebugGrid);
-	AActor* const SpawningObject = GetWorld()->SpawnActor<AActor>(WhatToSpawn, Location, Rotation, SpawnParams);
-
 }
 
 // Called every frame
@@ -77,6 +51,27 @@ TArray<FSplineUnit> ASplineActor::GenerateInitialSplineUnits(int TestNum)
 {
 	TArray<FSplineUnit> SplineUnitsTmp;
 
+	//for (auto i = 0; i < TestNum; i++) {
+	//	FSplineUnit SplineUnitTmp;
+		
+	//	SplineUnitTmp.WaveType = ESplineUnit::WAVE_LINEAR;
+	//	SplineUnitTmp.Msec = 10.0f;
+	//	SplineUnitTmp.MaxWidth = 0;
+	//	SplineUnitTmp.MinWidth = 0;
+	//	SplineUnitTmp.Density = 10;
+
+	//	FVector UnitVector = FVector(0, 500.0f, 0);
+	//	if (i % 2 == 1) {
+	//		SplineUnitTmp.Distance = UnitVector * i * -1;
+	//	}
+	//	else {
+	//		SplineUnitTmp.Distance = UnitVector * i;
+	//	}
+
+	//	SplineUnitsTmp.Push(SplineUnitTmp);
+	//	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(0, 0, 255, 255), FString::FromInt(SplineUnitsTmp.Num()));
+    //}
+
 	for (auto i = 0; i < TestNum; i++) {
 		FSplineUnit SplineUnitTmp;
 		
@@ -85,8 +80,9 @@ TArray<FSplineUnit> ASplineActor::GenerateInitialSplineUnits(int TestNum)
 		SplineUnitTmp.MaxWidth = 0;
 		SplineUnitTmp.MinWidth = 0;
 		SplineUnitTmp.Density = 10;
+		//SplineUnitTmp.Distance = FVector(0, 1.0f, 0);
 
-		FVector UnitVector = FVector(0, 100.0f, 0);
+		FVector UnitVector = FVector(0, 500.0f, 0);
 		if (i % 2 == 1) {
 			SplineUnitTmp.Distance = UnitVector * i * -1;
 		}
@@ -99,4 +95,25 @@ TArray<FSplineUnit> ASplineActor::GenerateInitialSplineUnits(int TestNum)
     }
 
 	return SplineUnitsTmp;
+}
+
+void ASplineActor::LoadDebugGrid()
+{
+	static ConstructorHelpers::FObjectFinder<UBlueprint> DebugGridClassFinder( TEXT( "Blueprint'/Game/T_DebugGrid.T_DebugGrid'" ) );
+
+	if (DebugGridClassFinder.Succeeded())
+	{
+		//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 0, 0, 255), TEXT("Hello World: "));
+		WhatToSpawn = (UClass*)DebugGridClassFinder.Object->GeneratedClass;
+	}
+}
+
+void ASplineActor::SetDebugGridsEachSplinePoints(int PointNum)
+{
+	FVector Location = { 0.0, 0.0, 0.0 };
+	FRotator Rotation = { 0.0, 0.0, 0.0 };
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	AActor* const SpawningObject = GetWorld()->SpawnActor<AActor>(WhatToSpawn,
+		MySpline->GetLocationAtSplinePoint(PointNum, ESplineCoordinateSpace::Type::Local), Rotation, SpawnParams);
 }
