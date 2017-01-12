@@ -34,13 +34,17 @@ public:
     UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
     float Msec;
     
-	// WaveTypeがLinear以外の場合の最大横幅
+	// WaveTypeがLinear以外の場合の曲線頂点のベクトル
     UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
-    float MaxWidth;
+    FVector VertexVector;
+
+	// WaveTypeがLinear以外の場合のWaveの折り返し数
+    UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
+    float WaveCycleCount;
     
 	// WaveTypeがLinear以外の場合の最小横幅
     UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
-    float MinWidth;
+    FVector MinWidth;
     
     UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
     int32 Density;
@@ -48,4 +52,16 @@ public:
 public:
 	FString ToDebugString();
 	FVector BetweenPoints();
+
+	void DeriveSplinePointsAddTo(TArray<FVector> &Points);
+
+private:
+	// linearカーブでのSplinePoints生成を実施
+	void DeriveWaveLinearPoints(TArray<FVector> &Points);
+
+	// SinカーブでのSplinePoints生成を実施
+	void DeriveWaveSinPoints(TArray<FVector> &Points);
+
+	// TriangleカーブでのSplinePoints生成を実施
+	void DeriveWaveTrianglePoints(TArray<FVector> &Points);
 };

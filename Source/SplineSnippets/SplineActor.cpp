@@ -26,15 +26,7 @@ void ASplineActor::BeginPlay()
 	TArray<FVector> SplinePoints;
 	for (auto SplineUnit : SplineUnits)
 	{
-		for (auto i = 0; i < SplineUnit.Density; i++)
-		{
-			// SplineUnitをclass化して下記をカプセル化
-			float rand = FMath::FRandRange(SplineUnit.MinWidth, SplineUnit.MaxWidth);
-			FVector RandWidth = FVector(1.0f, 1.0f, 1.0f) * rand;
-			GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 255, 255, 255), FString::SanitizeFloat(rand));
-			SplinePoints.Push(SplineUnit.BetweenPoints() * i + RandWidth);
-		}
-		//SplinePoints.Push(SplineUnit.Distance);
+		SplineUnit.DeriveSplinePointsAddTo(SplinePoints);
 	};
 
 	MySpline->SetSplinePoints(SplinePoints, ESplineCoordinateSpace::Type::Local);
@@ -83,12 +75,13 @@ TArray<FSplineUnit> ASplineActor::GenerateInitialSplineUnits(int TestNum)
 	for (auto i = 0; i < TestNum; i++) {
 		FSplineUnit SplineUnitTmp;
 		
-		SplineUnitTmp.WaveType = ESplineUnit::WAVE_LINEAR;
+		SplineUnitTmp.WaveType = ESplineUnit::WAVE_TRIANGLE;
 		SplineUnitTmp.Msec = 10.0f;
-		SplineUnitTmp.MaxWidth = 100.f;
-		SplineUnitTmp.MinWidth = 0;
-		SplineUnitTmp.Density = 10;
-		SplineUnitTmp.Distance = FVector(0, 5000.0f, 0);
+		SplineUnitTmp.VertexVector = FVector(0, 100.0f, 0);
+		SplineUnitTmp.MinWidth = FVector(1000.0f, 0, 0);
+		SplineUnitTmp.WaveCycleCount = 4.0f;
+		SplineUnitTmp.Density = 500;
+		SplineUnitTmp.Distance = FVector(5000.0f, 0, 0);
 
 		SplineUnitsTmp.Push(SplineUnitTmp);
 		GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(0, 0, 255, 255), FString::FromInt(SplineUnitsTmp.Num()));
