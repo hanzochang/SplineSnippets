@@ -77,10 +77,10 @@ TArray<FSplineUnit> ASplineActor::GenerateInitialSplineUnits(int TestNum)
 		
 		SplineUnitTmp.WaveType = ESplineUnit::WAVE_TRIANGLE;
 		SplineUnitTmp.Msec = 10.0f;
-		SplineUnitTmp.VertexVector = FVector(0, 100.0f, 0);
+		SplineUnitTmp.VertexVector = FVector(0, 1000.0f, 0);
 		SplineUnitTmp.MinWidth = FVector(1000.0f, 0, 0);
-		SplineUnitTmp.WaveCycleCount = 4.0f;
-		SplineUnitTmp.Density = 500;
+		SplineUnitTmp.WaveCycleCount = 16.0f;
+		SplineUnitTmp.Density = 2000;
 		SplineUnitTmp.Distance = FVector(5000.0f, 0, 0);
 
 		SplineUnitsTmp.Push(SplineUnitTmp);

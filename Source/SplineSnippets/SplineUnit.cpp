@@ -66,44 +66,42 @@ void FSplineUnit::DeriveWaveSinPoints(TArray<FVector> &Points)
 
 void FSplineUnit::DeriveWaveTrianglePoints(TArray<FVector> &Points)
 {
+	float Quater = Density / WaveCycleCount;
+
 	for (auto i = 0; i < Density; i++)
 	{
-		// ‚Â‚¬‚±‚±
-		FVector VectorDiff = (VertexVector / WaveCycleCount / 2);
+		FVector BasePoint = BetweenPoints() * i;
+		float NumPerQuater = i / Quater;
+		float NumPerQuaterDecimal = NumPerQuater - FMath::Floor(NumPerQuater);
+		float BranchPoint = FMath::Sin(PI * (i / Quater));
+		float BranchPointPrev = (i != 0 ? FMath::Sin(PI * ((i-1) / Quater)) : 0);
 
-		float BranchPoint = FMath::Sin((PI / (Density / WaveCycleCount)) * 2 *  i);
-		float BranchPointPrev = (i != 0 ? FMath::Sin((PI / (Density / WaveCycleCount)) * 2 * (i - 1)) : 0);
 		if (BranchPoint > 0)
 		{
-			if (BranchPoint - BranchPointPrev > 0)
+			if (BranchPoint - BranchPointPrev >= 0)
 			{
-				//Points.Push(BetweenPoints() * i + (VectorDiff * (i % (int)WaveCycleCount)));
-				//Points.Push(BetweenPoints() * i);
-				Points.Push(BetweenPoints() * i + (VectorDiff * (i% (int)(Density/WaveCycleCount/2))));
+				Points.Push(BasePoint + (VertexVector * (NumPerQuaterDecimal)));
 			}
 			else
 			{
-				//Points.Push(BetweenPoints() * i + (VectorDiff * (i % (i - (int)(Density/WaveCycleCount/2)))));
+				Points.Push(BasePoint + (VertexVector - (VertexVector * (NumPerQuaterDecimal))));
 			}
 		}
 		else if (BranchPoint < 0)
 		{
-			if (BranchPoint - BranchPointPrev > 0)
+			if (BranchPoint - BranchPointPrev >= 0)
 			{
-				Points.Push(BetweenPoints() * i + ( -VectorDiff * (i% (int)(Density/WaveCycleCount/2))));
-				//Points.Push(BetweenPoints() * i + (-VertexVector * (i % (int)WaveCycleCount)));
+				Points.Push(BasePoint - (VertexVector - (VertexVector * (NumPerQuaterDecimal))));
 			}
 			else
 			{
-				Points.Push(BetweenPoints() * i + (-VertexVector * (i - (i % (int)WaveCycleCount))));
+				Points.Push(BasePoint - (VertexVector * (NumPerQuaterDecimal)));
 			}
 		}
-		//else
-		//{
-		//	Points.Push(BetweenPoints() * i);
-		//}
+		else
+		{
+			Points.Push(BetweenPoints() * i);
+		}
 		
-		//float VertexBase = FMath::Sin(PI / Density * i * WaveCycleCount);
-		//Points.Push(BetweenPoints() * i + (VertexVector * VertexBase));
 	}
 }
