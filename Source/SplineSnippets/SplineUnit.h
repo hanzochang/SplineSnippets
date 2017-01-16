@@ -26,6 +26,10 @@ public:
     UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
     ESplineUnit WaveType;
 
+	// SplineUnit‚©‚ç¶¬‚³‚ê‚éÅ‰‚ÌLocation
+    UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
+    FVector StartLocation;
+
 	// SplineUnit‚ª•\Œ»‚·‚é‹——£‚Æ•ûŒü
 	UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
 	FVector Distance;
@@ -42,12 +46,19 @@ public:
     UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
     float WaveCycleCount;
     
-	// WaveType‚ªLinearˆÈŠO‚Ìê‡‚ÌÅ¬‰¡•
-    UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
-    FVector MinWidth;
-    
     UPROPERTY(EditAnyWhere, BluePrintReadWrite, Category = "Struct")
     int32 Density;
+
+public:
+	static FSplineUnit GenerateSplineUnit(
+		ESplineUnit WaveType,
+		FVector Distance,
+		FVector StartLocation,
+		FVector VertexVector,
+		float WaveCycleCount,
+		int32 Density,
+	    float Msec
+		);
 
 public:
 	FString ToDebugString();

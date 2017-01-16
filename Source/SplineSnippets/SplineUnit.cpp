@@ -17,7 +17,6 @@ FString FSplineUnit::ToDebugString()
 		"Distance: " + Distance.ToString() + "  |   "  +
 		"Density: " + FString::FromInt(Density) + "  |   " + 
 		"VertexVector: " + VertexVector.ToString() + "  |   " + 
-		"MaxWidth: " + MinWidth.ToString() + "  |   " +
 		"Msec: " + FString::SanitizeFloat(Msec);
 
 	return Result;
@@ -28,7 +27,30 @@ FVector FSplineUnit::BetweenPoints()
 	return Distance / Density;
 }
 
-//SplineUnitをPointsポインタにSplineUnitの状態に応じてセットする
+// Unreal C++内で生成するための疑似コンストラクタ
+FSplineUnit FSplineUnit::GenerateSplineUnit(
+		ESplineUnit WaveType,
+		FVector Distance,
+		FVector StartLocation,
+		FVector VertexVector,
+		float WaveCycleCount,
+		int32 Density,
+	    float Msec
+)
+{
+	FSplineUnit SplineUnit;
+	SplineUnit.WaveType = WaveType;
+	SplineUnit.Msec = Msec;
+	SplineUnit.VertexVector = VertexVector;
+	SplineUnit.WaveCycleCount = WaveCycleCount;
+	SplineUnit.Density = Density;
+	SplineUnit.Distance = Distance;
+	SplineUnit.StartLocation = StartLocation;
+
+	return SplineUnit;
+}
+
+// SplineUnitをPointsポインタにSplineUnitの状態に応じてセットする
 void FSplineUnit::DeriveSplinePointsAddTo(TArray<FVector> &Points)
 {
 	switch (WaveType)
@@ -51,7 +73,7 @@ void FSplineUnit::DeriveWaveLinearPoints(TArray<FVector> &Points)
 {
 	for (auto i = 0; i < Density; i++)
 	{
-		Points.Push(BetweenPoints() * i);
+		Points.Push(StartLocation + BetweenPoints() * i);
 	}
 }
 
@@ -60,7 +82,7 @@ void FSplineUnit::DeriveWaveSinPoints(TArray<FVector> &Points)
 	for (auto i = 0; i < Density; i++)
 	{
 		float VertexBase = FMath::Sin(PI / Density * i * WaveCycleCount);
-		Points.Push(BetweenPoints() * i +(VertexVector * VertexBase));
+		Points.Push(StartLocation + BetweenPoints() * i +(VertexVector * VertexBase));
 	}
 }
 
@@ -70,7 +92,7 @@ void FSplineUnit::DeriveWaveTrianglePoints(TArray<FVector> &Points)
 
 	for (auto i = 0; i < Density; i++)
 	{
-		FVector BasePoint = BetweenPoints() * i;
+		FVector BasePoint = StartLocation + BetweenPoints() * i;
 		float NumPerQuater = i / Quater;
 		float NumPerQuaterDecimal = NumPerQuater - FMath::Floor(NumPerQuater);
 		float BranchPoint = FMath::Sin(PI * (i / Quater));
@@ -80,22 +102,22 @@ void FSplineUnit::DeriveWaveTrianglePoints(TArray<FVector> &Points)
 		{
 			if (BranchPoint - BranchPointPrev >= 0)
 			{
-				Points.Push(BasePoint + (VertexVector * (NumPerQuaterDecimal)));
+				Points.Push(BasePoint + (VertexVector*2 * (NumPerQuaterDecimal)));
 			}
 			else
 			{
-				Points.Push(BasePoint + (VertexVector - (VertexVector * (NumPerQuaterDecimal))));
+				Points.Push(BasePoint + (VertexVector*2 - (VertexVector*2 * (NumPerQuaterDecimal))));
 			}
 		}
 		else if (BranchPoint < 0)
 		{
 			if (BranchPoint - BranchPointPrev >= 0)
 			{
-				Points.Push(BasePoint - (VertexVector - (VertexVector * (NumPerQuaterDecimal))));
+				Points.Push(BasePoint - (VertexVector*2 - (VertexVector*2 * (NumPerQuaterDecimal))));
 			}
 			else
 			{
-				Points.Push(BasePoint - (VertexVector * (NumPerQuaterDecimal)));
+				Points.Push(BasePoint - (VertexVector*2 * (NumPerQuaterDecimal)));
 			}
 		}
 		else
