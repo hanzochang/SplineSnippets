@@ -24,8 +24,8 @@ private:
 
 	void SetDebugGridsEachSplinePoints(int PointNum);
 	void ASplineActor::LoadDebugGrid();
-	//TArray<FSplineUnit> GenerateInitialSplineUnits(int TestNum);
 	TArray<FSplineUnit> GenerateInitialSplineUnits(int TestNum, ESplineUnit WaveType);
+	void ParseJsonAndAssignSplineUnits(FString Path);
 	
 public:	
 	// Sets default values for this actor's properties

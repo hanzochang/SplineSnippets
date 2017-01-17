@@ -4,10 +4,25 @@
 #include "SplineUnit.h"
 
 /**
+ * Converts a ESplineUnit to String.
+ * 
+ * @param	EplineUnit
+ * @returns String
+ */
+
+FString GetSplineUnitEnumAsString(ESplineUnit EnumValue)
+{
+  const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ESplineUnit"), true);
+  if(!EnumPtr) return FString("Invalid");
+ 
+  return EnumPtr->GetEnumName((int32)EnumValue);
+};
+
+/**
  * Converts a FSplineUnit to String.
  * 
  * @param	SplineUnit		SplineUnit members to sanitize
- * @returns Strint
+ * @returns String
  */
 
 FString FSplineUnit::ToDebugString()

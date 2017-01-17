@@ -16,6 +16,8 @@ enum class ESplineUnit : uint8
     WAVE_SAWTOOTH    UMETA(DisplayName = "Sawtooth")
 };
 
+FString GetSplineUnitEnumAsString(ESplineUnit EnumValue);
+
 USTRUCT(BlueprintType)
 struct FSplineUnit
 {

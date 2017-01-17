@@ -22,41 +22,7 @@ void ASplineActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FString FullPath = FPaths::GameContentDir();
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 255, 255, 255), FullPath);
-
-	FVector PrevEndPoint = FVector{ 0,0,0 };
-	for (auto i = 0; i < 5; i++)
-	{
-		ESplineUnit WaveType;
-
-		switch (i % 3)
-		{
-		case 0:
-			WaveType = ESplineUnit::WAVE_SIN;
-			break;
-		case 1:
-			WaveType = ESplineUnit::WAVE_TRIANGLE;
-			break;
-		default:
-			WaveType = ESplineUnit::WAVE_LINEAR;
-			break;
-		}
-
-		FSplineUnit SplineUnitTmp = FSplineUnit::GenerateSplineUnit(
-			WaveType,
-			FVector{ 5000.f,0,5000.f },
-			PrevEndPoint,
-			FVector{ 0,2000.0f, 0 },
-			1.0f,
-			500,
-			10
-		);
-		PrevEndPoint = SplineUnitTmp.StartLocation + SplineUnitTmp.Distance;
-
-		SplineUnits.Push(SplineUnitTmp);
-
-	}
+	ParseJsonAndAssignSplineUnits("splinetest.json");
 
 	TArray<FVector> SplinePoints;
 	for (auto SplineUnit : SplineUnits)
@@ -72,16 +38,18 @@ void ASplineActor::BeginPlay()
 
 	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 255, 255, 255), FString::FromInt(MySpline->GetNumSplinePoints()));
 	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 0, 0, 255), FString::FromInt(SplineUnits.Num()));
+
 }
 
 // Called every frame
 void ASplineActor::Tick( float DeltaTime )
 {
-	//UE_LOG(LogTemp, Warning, TEXT("output : %s"), L"ÉçÉOÇÃì‡óe");
 	Super::Tick( DeltaTime );
-
 }
 
+/*
+* Private
+*/
 
 void ASplineActor::LoadDebugGrid()
 {
@@ -89,7 +57,6 @@ void ASplineActor::LoadDebugGrid()
 
 	if (DebugGridClassFinder.Succeeded())
 	{
-		//GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 0, 0, 255), TEXT("Hello World: "));
 		WhatToSpawn = (UClass*)DebugGridClassFinder.Object->GeneratedClass;
 	}
 }
@@ -102,4 +69,96 @@ void ASplineActor::SetDebugGridsEachSplinePoints(int PointNum)
 	SpawnParams.Owner = this;
 	AActor* const SpawningObject = GetWorld()->SpawnActor<AActor>(WhatToSpawn,
 		MySpline->GetLocationAtSplinePoint(PointNum, ESplineCoordinateSpace::Type::Local), Rotation, SpawnParams);
+}
+
+
+void ASplineActor::ParseJsonAndAssignSplineUnits(FString Path)
+{
+	FVector PrevEndPoint = FVector{ 0,0,0 };
+
+	FString FullPath = FPaths::GameContentDir();
+	FullPath += Path;
+	FString JsonStr;
+	FFileHelper::LoadFileToString(JsonStr, *FullPath);
+
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(JsonStr);
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+
+	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+	{
+		if (GEngine) {
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Deserialize"));
+		}
+		TArray<TSharedPtr<FJsonValue>> objArray = JsonObject->GetArrayField(TEXT("SplineUnits"));
+
+		for (int32 i = 0; i < objArray.Num(); i++)
+		{
+			TSharedPtr<FJsonValue> value = objArray[i];
+			TSharedPtr<FJsonObject> json = value->AsObject();
+
+			FString WaveTypeStr = json->GetStringField(TEXT("WaveType"));
+			ESplineUnit WaveType;
+
+			if (WaveTypeStr == "WAVE_LINEAR")
+			{
+				WaveType = ESplineUnit::WAVE_LINEAR;
+			}
+			else if (WaveTypeStr == "WAVE_SIN")
+			{
+				WaveType = ESplineUnit::WAVE_SIN;
+			}
+			else if (WaveTypeStr == "WAVE_TRIANGLE")
+			{
+				WaveType = ESplineUnit::WAVE_TRIANGLE;
+			}
+			else
+			{
+				WaveType = ESplineUnit::WAVE_LINEAR;
+			}
+
+			// JsonÇÃÇ∑Ç◊ÇƒÇ™ê≥ÇµÇ≠ë∂ç›Ç∑ÇÈÇ©ÅH
+
+			TArray<FString> DistanceJson;
+			json->TryGetStringArrayField(TEXT("Distance"), DistanceJson);
+			FVector Distance = FVector{ FCString::Atof(*DistanceJson[0]), FCString::Atof(*DistanceJson[1]), FCString::Atof(*DistanceJson[2]) };
+
+			TArray<FString> VertexVectorJson;
+			json->TryGetStringArrayField(TEXT("VertexVector"), VertexVectorJson);
+			FVector VertexVector = FVector{ FCString::Atof(*VertexVectorJson[0]), FCString::Atof(*VertexVectorJson[1]), FCString::Atof(*VertexVectorJson[2]) };
+
+			float WaveCycleCount = json->GetNumberField(TEXT("WaveCycleCount"));
+			int32 Density = json->GetNumberField(TEXT("Density"));
+			float Msec = json->GetNumberField(TEXT("Msec"));
+
+			if (GEngine) {
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("json:"));
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, GetSplineUnitEnumAsString(WaveType));
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Distance.ToString());
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, VertexVector.ToString());
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::FromInt(Density));
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::SanitizeFloat(Msec));
+			}
+
+			FSplineUnit SplineUnit = FSplineUnit::GenerateSplineUnit(
+				WaveType,
+				Distance,
+				PrevEndPoint,
+				VertexVector,
+				WaveCycleCount,
+				Density,
+				Msec
+			);
+
+			PrevEndPoint = SplineUnit.StartLocation + SplineUnit.Distance;
+			SplineUnits.Push(SplineUnit);
+		}
+
+		//return true;
+	}
+	else {
+		if (GEngine) {
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Not Deserialize"));
+		}
+		//return false;
+	}
 }
