@@ -14,6 +14,8 @@ ASplineActor::ASplineActor()
     MySpline = CreateDefaultSubobject<USplineComponent>(FName("MySpline"));
 	MySpline->SetupAttachment(SM);
 
+	DeltaTimeSum = 0;
+
 	LoadDebugGrid();
 }
 
@@ -45,6 +47,18 @@ void ASplineActor::BeginPlay()
 void ASplineActor::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
+	DeltaTimeSum += DeltaTime;
+}
+
+
+void ASplineActor::ForceMove(AActor *Actor)
+{
+	FVector Location = GetCurrentLocationAlongSpline(DeltaTimeSum);
+	FVector Direction = GetCurrentDirectionAlongSpline(DeltaTimeSum);
+	FRotator Rotation = GetCurrentRotationAlongSpline(DeltaTimeSum);
+	FQuat Quaternion = FQuat{ Direction.X, Direction.Y, Direction.Z, 0 };
+	Actor->SetActorLocation(Location);
+	//Actor->SetActorLocationAndRotation(Location, Quaternion);
 }
 
 /*
@@ -68,7 +82,9 @@ void ASplineActor::SetDebugGridsEachSplinePoints(int PointNum)
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
 	AActor* const SpawningObject = GetWorld()->SpawnActor<AActor>(WhatToSpawn,
-		MySpline->GetLocationAtSplinePoint(PointNum, ESplineCoordinateSpace::Type::Local), Rotation, SpawnParams);
+		MySpline->GetLocationAtSplinePoint(PointNum, ESplineCoordinateSpace::Type::Local), 
+		MySpline->GetRotationAtSplinePoint(PointNum, ESplineCoordinateSpace::Type::Local),
+		SpawnParams);
 }
 
 
@@ -161,4 +177,19 @@ void ASplineActor::ParseJsonAndAssignSplineUnits(FString Path)
 		}
 		//return false;
 	}
+}
+
+FVector ASplineActor::GetCurrentLocationAlongSpline(float distance)
+{
+	return MySpline->GetWorldLocationAtDistanceAlongSpline(distance);
+}
+
+FVector ASplineActor::GetCurrentDirectionAlongSpline(float distance)
+{
+	return MySpline->GetWorldDirectionAtDistanceAlongSpline(distance);
+}
+
+FRotator ASplineActor::GetCurrentRotationAlongSpline(float distance)
+{
+	return MySpline->GetWorldRotationAtDistanceAlongSpline(distance);
 }
