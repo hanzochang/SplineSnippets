@@ -1,0 +1,69 @@
+{
+  "SplineUnits":
+  [
+    {
+      "WaveType": "WAVE_SIN",
+      "Distance": [100000, 0, 10000],
+      "VertexVector": [0, 10000, 0],
+      "WaveCycleCount": 1,
+      "Density": 30,
+      "Msec": 10
+    },
+    {
+      "WaveType": "WAVE_SIN",
+      "Distance": [50000, 0, 0],
+      "VertexVector": [0, -10000, 0],
+      "WaveCycleCount": 2,
+      "Density": 100,
+      "Msec": 10
+    },
+    {
+      "WaveType": "WAVE_SIN",
+      "Distance": [100000, 0, 10000],
+      "VertexVector": [0, -10000, 0],
+      "WaveCycleCount": 1,
+      "Density": 30,
+      "Msec": 10
+    },
+    {
+      "WaveType": "WAVE_SIN",
+      "Distance": [100000, 0, 10000],
+      "VertexVector": [0, 10000, 0],
+      "WaveCycleCount": 1,
+      "Density": 30,
+      "Msec": 10
+    },
+    {
+      "WaveType": "WAVE_SIN",
+      "Distance": [100000, 0, 10000],
+      "VertexVector": [0, -10000, 0],
+      "WaveCycleCount": 1,
+      "Density": 30,
+      "Msec": 10
+    },
+    {
+      "WaveType": "WAVE_SIN",
+      "Distance": [100000, 0, 10000],
+      "VertexVector": [0, 10000, 0],
+      "WaveCycleCount": 1,
+      "Density": 30,
+      "Msec": 10
+    },
+    {
+      "WaveType": "WAVE_SIN",
+      "Distance": [100000, 0, 10000],
+      "VertexVector": [0, -10000, 0],
+      "WaveCycleCount": 1,
+      "Density": 30,
+      "Msec": 10
+    },
+    {
+      "WaveType": "WAVE_SIN",
+      "Distance": [100000, 0, 10000],
+      "VertexVector": [0, -10000, 0],
+      "WaveCycleCount": 1,
+      "Density": 1000,
+      "Msec": 10
+    }
+  ]
+}
