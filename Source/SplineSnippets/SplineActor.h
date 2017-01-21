@@ -59,7 +59,6 @@ private:
 	// (WIP, 別モジュール化予定)SplinePointsの初期値を取得
 	TArray<FSplineUnit> GenerateInitialSplineUnits(int TestNum, ESplineUnit WaveType);
 
-
 	// デバッグ用BluePrint(StaticMesh)を読み込む
 	void ASplineActor::LoadDebugGrid();
 

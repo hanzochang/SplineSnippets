@@ -58,7 +58,6 @@ void ASplineActor::ForceMove(AActor *Actor)
 	FRotator Rotation = GetCurrentRotationAlongSpline(DeltaTimeSum);
 	FQuat Quaternion = FQuat{ Direction.X, Direction.Y, Direction.Z, 0 };
 	Actor->SetActorLocation(Location);
-	//Actor->SetActorLocationAndRotation(Location, Quaternion);
 }
 
 /*
@@ -132,7 +131,7 @@ void ASplineActor::ParseJsonAndAssignSplineUnits(FString Path)
 				WaveType = ESplineUnit::WAVE_LINEAR;
 			}
 
-			// Jsonのすべてが正しく存在するか？
+			// TODO Jsonのパラメータ型チェック　Jsonのすべてが正しく存在するか？
 
 			TArray<FString> DistanceJson;
 			json->TryGetStringArrayField(TEXT("Distance"), DistanceJson);
@@ -168,14 +167,11 @@ void ASplineActor::ParseJsonAndAssignSplineUnits(FString Path)
 			PrevEndPoint = SplineUnit.StartLocation + SplineUnit.Distance;
 			SplineUnits.Push(SplineUnit);
 		}
-
-		//return true;
 	}
 	else {
 		if (GEngine) {
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Not Deserialize"));
 		}
-		//return false;
 	}
 }
 
