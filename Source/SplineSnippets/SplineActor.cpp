@@ -13,8 +13,8 @@ ASplineActor::ASplineActor()
 	SetRootComponent(CreateDefaultSubobject<UStaticMeshComponent>(FName("SM")));
     MySpline = CreateDefaultSubobject<USplineComponent>(FName("MySpline"));
 	MySpline->SetupAttachment(SM);
-
-	DeltaTimeSum = 0;
+	test = true;
+	CurrentToSplineUnitNum = 0;
 
 	LoadDebugGrid();
 }
@@ -27,19 +27,25 @@ void ASplineActor::BeginPlay()
 	ParseJsonAndAssignSplineUnits("splinetest.json");
 
 	TArray<FVector> SplinePoints;
-	for (auto SplineUnit : SplineUnits)
-	{
-		SplineUnit.DeriveSplinePointsAddTo(SplinePoints);
-	};
+	//for (auto SplineUnit : SplineUnits)
+	//{
+	//	SplineUnit.DeriveSplinePointsAddTo(SplinePoints);
+	//};
 
+	SplineUnits[0].DeriveSplinePointsAddTo(SplinePoints);
 	MySpline->SetSplinePoints(SplinePoints, ESplineCoordinateSpace::Type::Local);
 
-	for (auto i = 0 ; i < MySpline->GetNumSplinePoints(); i++) {
+	// last
+	PrevSplineUnitPointStartNum = 0;
+	PrevSplineUnitPointEndNum = MySpline->GetNumberOfSplinePoints() - 1;
+	CurrentToSplineUnitNum = 0;
+	CurrentSplineUnitLength = GetCurrentSplineUnitLength(MySpline, PrevSplineUnitPointStartNum, PrevSplineUnitPointEndNum);
+	TotalSplineUnitLength = 0;
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::FromInt(CurrentSplineUnitLength));
+
+	for (auto i = 0 ; i < MySpline->GetNumberOfSplinePoints(); i++) {
 		SetDebugGridsEachSplinePoints(i);
 	}
-
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 255, 255, 255), FString::FromInt(MySpline->GetNumSplinePoints()));
-	GEngine->AddOnScreenDebugMessage(-1, 20.0f, FColor(255, 0, 0, 255), FString::FromInt(SplineUnits.Num()));
 
 }
 
@@ -47,18 +53,54 @@ void ASplineActor::BeginPlay()
 void ASplineActor::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
-	DeltaTimeSum += DeltaTime;
+	// checklength
 }
 
-
-void ASplineActor::ForceMove(AActor *Actor)
+float ASplineActor::GetCurrentSplineUnitLength(USplineComponent *Spline, int32 PointStartNumber, int32 PointEndNumber)
 {
-	FVector Location = GetCurrentLocationAlongSpline(DeltaTimeSum);
-	FVector Direction = GetCurrentDirectionAlongSpline(DeltaTimeSum);
-	FRotator Rotation = GetCurrentRotationAlongSpline(DeltaTimeSum);
-	FQuat Quaternion = FQuat{ Direction.X, Direction.Y, Direction.Z, 0 };
-	Actor->SetActorLocation(Location);
+	float LastLength = Spline->GetDistanceAlongSplineAtSplinePoint(PointEndNumber);
+    float StartLength = Spline->GetDistanceAlongSplineAtSplinePoint(PointStartNumber);
+
+	return LastLength - StartLength;
 }
+
+void ASplineActor::CheckNextSplineUnitsSpawing(float CurrentLength)
+{
+	if ((CurrentLength > (CurrentSplineUnitLength/2 + TotalSplineUnitLength)) && test)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("hoi"));
+
+		CurrentToSplineUnitNum = CurrentToSplineUnitNum + 1;
+		if (CurrentToSplineUnitNum > SplineUnits.Num())
+		{ 
+			CurrentToSplineUnitNum = 0;
+		}
+		TArray<FVector> SplinePoints;
+		SplineUnits[CurrentToSplineUnitNum].DeriveSplinePointsAddTo(SplinePoints);
+
+		// ƒƒ\ƒbƒh¶‚â‚·
+		for (auto SplinePoint : SplinePoints)
+		{
+			MySpline->AddSplinePoint(SplinePoint, ESplineCoordinateSpace::Type::Local);
+		};
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::FromInt(MySpline->GetNumberOfSplinePoints()));
+		for (auto i = PrevSplineUnitPointEndNum + 1 ; i < MySpline->GetNumberOfSplinePoints(); i++) {
+			SetDebugGridsEachSplinePoints(i);
+		}
+
+		PrevSplineUnitPointStartNum = PrevSplineUnitPointEndNum + 1;
+		//PrevSplineUnitPointStartNum = 0;
+		PrevSplineUnitPointEndNum = MySpline->GetNumberOfSplinePoints() - 1;
+		CurrentSplineUnitLength = GetCurrentSplineUnitLength(MySpline, PrevSplineUnitPointStartNum, PrevSplineUnitPointEndNum);
+		TotalSplineUnitLength += CurrentSplineUnitLength;
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::FromInt(CurrentSplineUnitLength));
+	}
+	else {
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("dani"));
+	}
+}
+
 
 /*
 * Private
@@ -146,12 +188,12 @@ void ASplineActor::ParseJsonAndAssignSplineUnits(FString Path)
 			float Msec = json->GetNumberField(TEXT("Msec"));
 
 			if (GEngine) {
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("json:"));
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, GetSplineUnitEnumAsString(WaveType));
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Distance.ToString());
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, VertexVector.ToString());
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::FromInt(Density));
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::SanitizeFloat(Msec));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("json:"));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, GetSplineUnitEnumAsString(WaveType));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Distance.ToString());
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, VertexVector.ToString());
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::FromInt(Density));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::SanitizeFloat(Msec));
 			}
 
 			FSplineUnit SplineUnit = FSplineUnit::GenerateSplineUnit(

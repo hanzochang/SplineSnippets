@@ -14,14 +14,6 @@ class SPLINESNIPPETS_API ASplineActor : public AActor
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnyWhere)
-	USplineComponent* MySpline;
-
-	UPROPERTY(VisibleAnyWhere)
-	UStaticMeshComponent* SM;
-
-	float DeltaTimeSum;
-
 	// Sets default values for this actor's properties
 	ASplineActor();
 
@@ -32,12 +24,34 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	UPROPERTY(VisibleAnyWhere)
+	USplineComponent* MySpline;
+
+	UPROPERTY(VisibleAnyWhere)
+	UStaticMeshComponent* SM;
+
+	int32 CurrentToSplineUnitNum;
+	float CurrentSplineUnitLength;
+	float TotalSplineUnitLength;
+
+	int32 PrevSplineUnitPointStartNum;
+	int32 PrevSplineUnitPointEndNum;
+	float GetCurrentSplineUnitLength(USplineComponent *Spline, int32 PointStartNumber, int32 PointEndNumber);
+	bool  test;
+
+	UFUNCTION(BlueprintCallable, Category=General)
+	void CheckNextSplineUnitsSpawing(float CurrentLength);
+
+    // DebugGridƒAƒTƒCƒ“Œn
+	UPROPERTY(VisibleAnyWhere)
 	TArray<FSplineUnit> SplineUnits;
 	
+    // DebugGridƒAƒTƒCƒ“Œn
 	UPROPERTY(EditAnywhere, Category = General)
     TSubclassOf<class AActor> WhatToSpawn;
 
-	void ASplineActor::ForceMove(AActor *Actor);
+	/*
+	* SplineˆÊ’uŽæ“¾Œn 
+	*/
 
 	// ”CˆÓ‚Ì‹——£‚É‚¨‚¯‚éSpline‚ÌLocation‚ðŽæ“¾
 	UFUNCTION(BlueprintCallable, Category=General)
