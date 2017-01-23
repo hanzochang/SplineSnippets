@@ -29,10 +29,11 @@ public:
 	UPROPERTY(VisibleAnyWhere)
 	UStaticMeshComponent* SM;
 
+	// ライフサイクル生成用パラメータ群: WIP
+	int32 DisplayableSplineUnitLimit; //前後に同時表示可能なSplineUnitの数
 	int32 CurrentToSplineUnitNum;
 	float CurrentSplineUnitLength;
 	float TotalSplineUnitLength;
-
 	int32 PrevSplineUnitPointStartNum;
 	int32 PrevSplineUnitPointEndNum;
 	float GetCurrentSplineUnitLength(USplineComponent *Spline, int32 PointStartNumber, int32 PointEndNumber);

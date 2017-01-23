@@ -66,48 +66,49 @@ FSplineUnit FSplineUnit::GenerateSplineUnit(
 }
 
 // SplineUnitをPointsポインタにSplineUnitの状態に応じてセットする
-void FSplineUnit::DeriveSplinePointsAddTo(TArray<FVector> &Points)
+void FSplineUnit::DeriveSplinePointsAddTo(TArray<FVector> &Points, FVector PrevPoint)
 {
 	switch (WaveType)
 	{
 	case ESplineUnit::WAVE_LINEAR:
-		DeriveWaveLinearPoints(Points);
+		DeriveWaveLinearPoints(Points, PrevPoint);
 		break;
 	case ESplineUnit::WAVE_SIN:
-		DeriveWaveSinPoints(Points);
+		DeriveWaveSinPoints(Points, PrevPoint);
 		break;
 	case ESplineUnit::WAVE_TRIANGLE:
-		DeriveWaveTrianglePoints(Points);
+		DeriveWaveTrianglePoints(Points, PrevPoint);
 		break;
 	case ESplineUnit::WAVE_SAWTOOTH:
 		break;
 	}
 }
 
-void FSplineUnit::DeriveWaveLinearPoints(TArray<FVector> &Points)
+void FSplineUnit::DeriveWaveLinearPoints(TArray<FVector> &Points, FVector PrevPoint)
 {
 	for (auto i = 0; i < Density; i++)
 	{
-		Points.Push(StartLocation + BetweenPoints() * i);
+		Points.Push(PrevPoint + BetweenPoints() * i);
 	}
 }
 
-void FSplineUnit::DeriveWaveSinPoints(TArray<FVector> &Points)
+void FSplineUnit::DeriveWaveSinPoints(TArray<FVector> &Points, FVector PrevPoint)
 {
 	for (auto i = 0; i < Density; i++)
 	{
 		float VertexBase = FMath::Sin(PI / Density * i * WaveCycleCount);
-		Points.Push(StartLocation + BetweenPoints() * i +(VertexVector * VertexBase));
+		Points.Push(PrevPoint + BetweenPoints() * i + (VertexVector * VertexBase));
 	}
 }
 
-void FSplineUnit::DeriveWaveTrianglePoints(TArray<FVector> &Points)
+void FSplineUnit::DeriveWaveTrianglePoints(TArray<FVector> &Points, FVector PrevPoint)
 {
 	float Quater = Density / WaveCycleCount;
 
 	for (auto i = 0; i < Density; i++)
 	{
-		FVector BasePoint = StartLocation + BetweenPoints() * i;
+		// バグあり
+		FVector BasePoint = PrevPoint + BetweenPoints() * i;
 		float NumPerQuater = i / Quater;
 		float NumPerQuaterDecimal = NumPerQuater - FMath::Floor(NumPerQuater);
 		float BranchPoint = FMath::Sin(PI * (i / Quater));
