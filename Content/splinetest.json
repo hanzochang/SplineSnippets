@@ -3,16 +3,32 @@
   [
     {
       "WaveType": "WAVE_SIN",
-      "Distance": [100000, 0, 0],
-      "VertexVector": [0, -10000, -10000],
+      "Distance": [10000, 0, -100],
+      "VertexVector": [0, -500, 0],
       "WaveCycleCount": 1,
       "Density": 40,
       "Msec": 10
     },
     {
       "WaveType": "WAVE_SIN",
-      "Distance": [100000, 0, 0],
-      "VertexVector": [0, 10000, 10000],
+      "Distance": [10000, 0, 500],
+      "VertexVector": [0, 500, 0],
+      "WaveCycleCount": 1,
+      "Density": 40,
+      "Msec": 10
+    },
+    {
+      "WaveType": "WAVE_SIN",
+      "Distance": [10000, 10000, 1000],
+      "VertexVector": [0, -500, 0],
+      "WaveCycleCount": 1,
+      "Density": 40,
+      "Msec": 10
+    },
+    {
+      "WaveType": "WAVE_SIN",
+      "Distance": [10000, 0, -100],
+      "VertexVector": [0, 500, 0],
       "WaveCycleCount": 1,
       "Density": 40,
       "Msec": 10

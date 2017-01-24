@@ -31,6 +31,9 @@ public:
 
 	// ライフサイクル生成用パラメータ群: WIP
 	int32 DisplayableSplineUnitLimit; //前後に同時表示可能なSplineUnitの数
+	TArray<float> DisplayableSplineUnitLengths;
+	float DisplayableSplineUnitLength;
+
 	int32 CurrentToSplineUnitNum;
 	float CurrentSplineUnitLength;
 	float TotalSplineUnitLength;

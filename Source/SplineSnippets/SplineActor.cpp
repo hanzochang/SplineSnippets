@@ -15,7 +15,7 @@ ASplineActor::ASplineActor()
 	MySpline->SetupAttachment(SM);
 	test = true;
 	CurrentToSplineUnitNum = 0;
-	DisplayableSplineUnitLimit = 2;
+	DisplayableSplineUnitLimit = 4;
 
 	LoadDebugGrid();
 }
@@ -27,44 +27,45 @@ void ASplineActor::BeginPlay()
 
 	ParseJsonAndAssignSplineUnits("splinetest.json");
 
-	//TArray<FVector> SplinePoints;
-	//for (auto SplineUnit : SplineUnits)
-	//{
-	//	SplineUnit.DeriveSplinePointsAddTo(SplinePoints);
-	//};
-
-	//SplineUnits[0].DeriveSplinePointsAddTo(SplinePoints);
-	//MySpline->SetSplinePoints(SplinePoints, ESplineCoordinateSpace::Type::Local);
-
 	// まず前面だけ
 	TArray<FVector> SplinePoints;
 	FVector StartPoint = FVector{ 0,0,0 };
 	int32 EdgeSplineUnitStartSplineNum = 0;
 	int32 counter = 0;
+
 	for (auto i = 0; i < DisplayableSplineUnitLimit; i++)
 	{
 		EdgeSplineUnitStartSplineNum = MySpline->GetNumberOfSplinePoints();
 		counter += i;
-		if (counter >= SplineUnits.Num()) { counter = counter - SplineUnits.Num(); }
+		if (counter >= SplineUnits.Num()) { counter = counter - SplineUnits.Num() - 1; }
 
 		SplineUnits[counter].DeriveSplinePointsAddTo(SplinePoints, StartPoint);
 		MySpline->SetSplinePoints(SplinePoints, ESplineCoordinateSpace::Type::Local);
 		StartPoint = MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(),
 			                                            ESplineCoordinateSpace::Local);
+
+		PrevSplineUnitPointStartNum = EdgeSplineUnitStartSplineNum;
+		PrevSplineUnitPointEndNum = MySpline->GetNumberOfSplinePoints() - 1;
+		CurrentSplineUnitLength = GetCurrentSplineUnitLength(MySpline,
+															 PrevSplineUnitPointStartNum,
+															 PrevSplineUnitPointEndNum);
+
+		DisplayableSplineUnitLengths.Push(CurrentSplineUnitLength);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, FString::FromInt(CurrentSplineUnitLength));
 	}
 
-	PrevSplineUnitPointStartNum = EdgeSplineUnitStartSplineNum;
-	PrevSplineUnitPointEndNum = MySpline->GetNumberOfSplinePoints();
-
-	CurrentToSplineUnitNum = DisplayableSplineUnitLimit - 1;
-	CurrentSplineUnitLength = GetCurrentSplineUnitLength(MySpline,
-														 PrevSplineUnitPointStartNum,
-														 PrevSplineUnitPointEndNum);
+	CurrentToSplineUnitNum = 0;
 	TotalSplineUnitLength = 0;
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::FromInt(CurrentSplineUnitLength));
 
 	for (auto i = 0 ; i < MySpline->GetNumberOfSplinePoints(); i++) {
 		SetDebugGridsEachSplinePoints(i);
+	}
+
+	DisplayableSplineUnitLength = 0;
+	for(auto i = 0; i <= CurrentToSplineUnitNum; i++)
+	{
+		DisplayableSplineUnitLength += DisplayableSplineUnitLengths[i];
 	}
 
 }
@@ -80,36 +81,35 @@ float ASplineActor::GetCurrentSplineUnitLength(USplineComponent *Spline, int32 P
 	float LastLength = Spline->GetDistanceAlongSplineAtSplinePoint(PointEndNumber);
     float StartLength = Spline->GetDistanceAlongSplineAtSplinePoint(PointStartNumber);
 
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::FromInt(PointEndNumber));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::FromInt(PointStartNumber));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::SanitizeFloat(LastLength));
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::SanitizeFloat(StartLength));
+
 	return LastLength - StartLength;
 }
 
 void ASplineActor::CheckNextSplineUnitsSpawing(float CurrentLength)
 {
-	if ((CurrentLength > (CurrentSplineUnitLength/2 + TotalSplineUnitLength)) && test)
+	if ((CurrentLength > DisplayableSplineUnitLength) && test)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("通過"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::FromInt(DisplayableSplineUnitLengths[0]));
+
+		CurrentToSplineUnitNum = CurrentToSplineUnitNum + 1;
+		int32 RenderSplineUnitNum = CurrentToSplineUnitNum;
+		if (RenderSplineUnitNum >= SplineUnits.Num())
+		{
+			RenderSplineUnitNum = CurrentToSplineUnitNum % SplineUnits.Num();
+		}
+
 		TArray<FVector> SplinePoints;
-		int32 EdgeSplineUnitStartSplineNum = 0;
+		SplineUnits[RenderSplineUnitNum].DeriveSplinePointsAddTo(SplinePoints,
+			MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local));
 
-		//for (auto i = 0; i < DisplayableSplineUnitLimit; i++)
-		//{
-			EdgeSplineUnitStartSplineNum = MySpline->GetNumberOfSplinePoints();
-			CurrentToSplineUnitNum = CurrentToSplineUnitNum + 1;
-			if (CurrentToSplineUnitNum >= SplineUnits.Num())
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("そうじゃ！"));
-				CurrentToSplineUnitNum = 0;
-			}
-
-			SplineUnits[CurrentToSplineUnitNum].DeriveSplinePointsAddTo(SplinePoints,
-				MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local));
-
-			for (auto SplinePoint : SplinePoints)
-			{
-				MySpline->AddSplinePoint(SplinePoint, ESplineCoordinateSpace::Type::Local);
-			};
-
-		//}
+		for (auto SplinePoint : SplinePoints)
+		{
+			MySpline->AddSplinePoint(SplinePoint, ESplineCoordinateSpace::Type::Local);
+		};
 
 		for (auto i = PrevSplineUnitPointEndNum + 1 ; i < MySpline->GetNumberOfSplinePoints(); i++) {
 			SetDebugGridsEachSplinePoints(i);
@@ -117,18 +117,17 @@ void ASplineActor::CheckNextSplineUnitsSpawing(float CurrentLength)
 
 		PrevSplineUnitPointStartNum = PrevSplineUnitPointEndNum + 1;
 		PrevSplineUnitPointEndNum = MySpline->GetNumberOfSplinePoints() - 1;
-		CurrentSplineUnitLength = GetCurrentSplineUnitLength(MySpline, PrevSplineUnitPointStartNum, PrevSplineUnitPointEndNum);
-		TotalSplineUnitLength += CurrentSplineUnitLength;
+		CurrentSplineUnitLength = GetCurrentSplineUnitLength(MySpline,
+															 PrevSplineUnitPointStartNum,
+															 PrevSplineUnitPointEndNum);
+		DisplayableSplineUnitLengths.Push(CurrentSplineUnitLength);
+		DisplayableSplineUnitLength = 0;
+		for(auto i = 0; i < CurrentToSplineUnitNum; i++)
+		{
+			DisplayableSplineUnitLength += DisplayableSplineUnitLengths[i];
+		}
+		DisplayableSplineUnitLength += DisplayableSplineUnitLengths[CurrentToSplineUnitNum] / 2;
 
-		// バグ調査中　最後のedgeでだせるか？でも、プッシュしたやつのまんなかじゃなえ？配列もう一回考える
-		//PrevSplineUnitPointStartNum = EdgeSplineUnitStartSplineNum;
-		//PrevSplineUnitPointEndNum = MySpline->GetNumberOfSplinePoints() - 1;
-		//TotalSplineUnitLength += GetCurrentSplineUnitLength(MySpline, 0, PrevSplineUnitPointEndNum);
-
-		//CurrentToSplineUnitNum = DisplayableSplineUnitLimit - 1;
-		//CurrentSplineUnitLength = GetCurrentSplineUnitLength(MySpline,
-		//													 PrevSplineUnitPointStartNum,
-		//													 PrevSplineUnitPointEndNum);
 	}
 	else {
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("dani"));
@@ -221,15 +220,6 @@ void ASplineActor::ParseJsonAndAssignSplineUnits(FString Path)
 			float WaveCycleCount = json->GetNumberField(TEXT("WaveCycleCount"));
 			int32 Density = json->GetNumberField(TEXT("Density"));
 			float Msec = json->GetNumberField(TEXT("Msec"));
-
-			if (GEngine) {
-				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("json:"));
-				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, GetSplineUnitEnumAsString(WaveType));
-				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, Distance.ToString());
-				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, VertexVector.ToString());
-				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::FromInt(Density));
-				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::SanitizeFloat(Msec));
-			}
 
 			FSplineUnit SplineUnit = FSplineUnit::GenerateSplineUnit(
 				WaveType,
