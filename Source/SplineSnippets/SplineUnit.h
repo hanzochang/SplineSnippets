@@ -66,7 +66,7 @@ public:
 	FString ToDebugString();
 	FVector BetweenPoints();
 
-	void DeriveSplinePointsAddTo(TArray<FVector> &Points, FVector PrevPoint = FVector{ 0,0,0 });
+	void DeriveSplinePointsAddTo(TArray<FVector> &Points, FVector PrevPoint = FVector{ 0,0,0 }, FVector PrevDirection = FVector{ 0,0,0 });
 
 private:
 	// linearÉJÅ[ÉuÇ≈ÇÃSplinePointsê∂ê¨Çé¿é{

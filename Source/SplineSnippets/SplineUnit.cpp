@@ -66,8 +66,10 @@ FSplineUnit FSplineUnit::GenerateSplineUnit(
 }
 
 // SplineUnitをPointsポインタにSplineUnitの状態に応じてセットする
-void FSplineUnit::DeriveSplinePointsAddTo(TArray<FVector> &Points, FVector PrevPoint)
+void FSplineUnit::DeriveSplinePointsAddTo(TArray<FVector> &Points, FVector PrevPoint, FVector PrevDirection)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, PrevDirection.ToString());
+	// クオータニオンに移行する
 	switch (WaveType)
 	{
 	case ESplineUnit::WAVE_LINEAR:

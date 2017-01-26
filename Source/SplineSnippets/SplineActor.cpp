@@ -37,7 +37,7 @@ void ASplineActor::BeginPlay()
 	{
 		EdgeSplineUnitStartSplineNum = MySpline->GetNumberOfSplinePoints();
 		counter += i;
-		if (counter >= SplineUnits.Num()) { counter = counter - SplineUnits.Num() - 1; }
+		if (counter >= SplineUnits.Num()) { counter = 0; }
 
 		SplineUnits[counter].DeriveSplinePointsAddTo(SplinePoints, StartPoint);
 		MySpline->SetSplinePoints(SplinePoints, ESplineCoordinateSpace::Type::Local);
@@ -51,12 +51,10 @@ void ASplineActor::BeginPlay()
 															 PrevSplineUnitPointEndNum);
 
 		DisplayableSplineUnitLengths.Push(CurrentSplineUnitLength);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, FString::FromInt(CurrentSplineUnitLength));
 	}
 
 	CurrentToSplineUnitNum = 0;
 	TotalSplineUnitLength = 0;
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::FromInt(CurrentSplineUnitLength));
 
 	for (auto i = 0 ; i < MySpline->GetNumberOfSplinePoints(); i++) {
 		SetDebugGridsEachSplinePoints(i);
@@ -93,7 +91,6 @@ void ASplineActor::CheckNextSplineUnitsSpawing(float CurrentLength)
 {
 	if ((CurrentLength > DisplayableSplineUnitLength) && test)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::FromInt(DisplayableSplineUnitLengths[0]));
 
 		CurrentToSplineUnitNum = CurrentToSplineUnitNum + 1;
 		int32 RenderSplineUnitNum = CurrentToSplineUnitNum;
@@ -103,11 +100,36 @@ void ASplineActor::CheckNextSplineUnitsSpawing(float CurrentLength)
 		}
 
 		TArray<FVector> SplinePoints;
-		SplineUnits[RenderSplineUnitNum].DeriveSplinePointsAddTo(SplinePoints,
-			MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local));
+		SplineUnits[RenderSplineUnitNum].
+			DeriveSplinePointsAddTo(SplinePoints,
+			                        MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(),ESplineCoordinateSpace::Local),
+			                        MySpline->GetDirectionAtSplinePoint(MySpline->GetNumberOfSplinePoints(),ESplineCoordinateSpace::Local)
+									);
 
+		FQuat quat; //= FQuat{ FVector{ 0,1,1 }, PI / 4 };
+
+		////FRotator tes = MySpline->GetRotationAtDistanceAlongSpline(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local);
+		//FVector tes2 = MySpline->GetDirectionAtDistanceAlongSpline(MySpline->GetSplineLength(), ESplineCoordinateSpace::Local);
+		//FVector loc = MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local);
+		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Black, FString::FromInt(MySpline->GetNumberOfSplinePoints()));
+		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Black, loc.ToString());
+		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::White, tes2.ToString());
+		//FVector tes3 = { tes2.X,0,tes2.Z };
+		//
+		//FRotator rot1 = MySpline->GetRotationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local);
+		//float rot2 = rot1.Yaw;
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, tes.ToString());
+		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, rot1.ToString());
+		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green, quat.ToString());
+
+
+
+		//quat = FQuat{ tes3, rot2 };
 		for (auto SplinePoint : SplinePoints)
 		{
+			//‚ ‚»‚Ñ
+			//MySpline->AddSplinePoint(tes2*SplinePoint, ESplineCoordinateSpace::Type::Local);
+			//MySpline->AddSplinePoint(quat*SplinePoint, ESplineCoordinateSpace::Type::Local);
 			MySpline->AddSplinePoint(SplinePoint, ESplineCoordinateSpace::Type::Local);
 		};
 
