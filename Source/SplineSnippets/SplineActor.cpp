@@ -102,35 +102,38 @@ void ASplineActor::CheckNextSplineUnitsSpawing(float CurrentLength)
 		TArray<FVector> SplinePoints;
 		SplineUnits[RenderSplineUnitNum].
 			DeriveSplinePointsAddTo(SplinePoints,
-			                        MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(),ESplineCoordinateSpace::Local),
-			                        MySpline->GetDirectionAtSplinePoint(MySpline->GetNumberOfSplinePoints(),ESplineCoordinateSpace::Local)
-									);
-
-		FQuat quat; //= FQuat{ FVector{ 0,1,1 }, PI / 4 };
-
-		////FRotator tes = MySpline->GetRotationAtDistanceAlongSpline(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local);
-		//FVector tes2 = MySpline->GetDirectionAtDistanceAlongSpline(MySpline->GetSplineLength(), ESplineCoordinateSpace::Local);
-		//FVector loc = MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local);
-		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Black, FString::FromInt(MySpline->GetNumberOfSplinePoints()));
-		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Black, loc.ToString());
-		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::White, tes2.ToString());
-		//FVector tes3 = { tes2.X,0,tes2.Z };
-		//
-		//FRotator rot1 = MySpline->GetRotationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local);
-		//float rot2 = rot1.Yaw;
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, tes.ToString());
-		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, rot1.ToString());
-		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green, quat.ToString());
+				MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local),
+				MySpline->GetDirectionAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local)
+			);
 
 
+		FVector UnitVector = MySpline->GetDirectionAtDistanceAlongSpline(MySpline->GetSplineLength(), ESplineCoordinateSpace::Local);
+		FVector UnitVectorVertical = FRotator{ 90, 0, 0 }.RotateVector(UnitVector);
+		UnitVectorVertical = FVector{ 0, 0, UnitVectorVertical.Z };
+		FVector Loc = MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local);
+		FRotator Rot = MySpline->GetRotationAtSplinePoint(MySpline->GetNumberOfSplinePoints() -1, ESplineCoordinateSpace::Local);
 
-		//quat = FQuat{ tes3, rot2 };
+		FVector LastSplinePoint = SplinePoints[SplinePoints.Num() - 1];
+		FVector Ve = LastSplinePoint - Loc;
+		Ve.Normalize();
+		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Blue, Rot.ToString());
+		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Yellow, Ve.Rotation().ToString());
+		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::White, FMath::DegreesToRadians((Ve.Rotation() + Rot)).ToString());
+		//PrevRotation += Ve.Rotation();
+		PrevRotation += FRotator{ 0,10,0 };
+		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Black, FMath::DegreesToRadians(PrevRotation).ToString());
+		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Black, PrevRotation.ToString());
+
+		//FQuat quat = FQuat{ UnitVectorVertical, FMath::DegreesToRadians(Ve.Rotation().Yaw + Rot.Yaw) };
+		FQuat quat = FQuat{ UnitVectorVertical, FMath::DegreesToRadians(PrevRotation.Yaw) };
+		//FQuat quat2;
+		//quat2 = FQuat{ UnitVectorVertical, Rot.Pitch };
 		for (auto SplinePoint : SplinePoints)
 		{
 			//‚ ‚»‚Ñ
-			//MySpline->AddSplinePoint(tes2*SplinePoint, ESplineCoordinateSpace::Type::Local);
-			//MySpline->AddSplinePoint(quat*SplinePoint, ESplineCoordinateSpace::Type::Local);
-			MySpline->AddSplinePoint(SplinePoint, ESplineCoordinateSpace::Type::Local);
+			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Black, quat.RotateVector(SplinePoint - Loc).ToString());
+			MySpline->AddSplinePoint((quat.RotateVector(SplinePoint - Loc)+Loc), ESplineCoordinateSpace::Type::Local);
+			//MySpline->AddSplinePoint(SplinePoint, ESplineCoordinateSpace::Type::Local);
 		};
 
 		for (auto i = PrevSplineUnitPointEndNum + 1 ; i < MySpline->GetNumberOfSplinePoints(); i++) {

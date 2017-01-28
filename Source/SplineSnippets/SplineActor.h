@@ -42,6 +42,8 @@ public:
 	float GetCurrentSplineUnitLength(USplineComponent *Spline, int32 PointStartNumber, int32 PointEndNumber);
 	bool  test;
 
+	FRotator PrevRotation = FRotator{ 0,0,0 }; // radian
+
 	UFUNCTION(BlueprintCallable, Category=General)
 	void CheckNextSplineUnitsSpawing(float CurrentLength);
 

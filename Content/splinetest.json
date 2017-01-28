@@ -3,19 +3,11 @@
   [
     {
       "WaveType": "WAVE_LINEAR",
-      "Distance": [10000, 2000, 0],
+      "Distance": [5000, 0, 0],
       "VertexVector": [0, 0, 0],
       "WaveCycleCount": 1,
       "Density": 10,
       "Msec": 10
     },
-    {
-      "WaveType": "WAVE_LINEAR",
-      "Distance": [10000, 0, 0],
-      "VertexVector": [0, 0, 0],
-      "WaveCycleCount": 1,
-      "Density": 10,
-      "Msec": 10
-    }
   ]
 }
