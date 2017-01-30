@@ -66,14 +66,19 @@ public:
 	FString ToDebugString();
 	FVector BetweenPoints();
 
-	void DeriveSplinePointsAddTo(TArray<FVector> &Points, FVector PrevPoint = FVector{ 0,0,0 }, FVector PrevDirection = FVector{ 0,0,0 });
+	void DeriveSplinePointsAddTo(TArray<FVector> &Points,
+		                         FVector PrevPoint = FVector{ 0,0,0 },
+								 FVector PrevDirection = FVector{ 0,0,0 },
+								 FRotator PrevRotation = FRotator{ 0,0,0 });
 
 private:
 	// linearカーブでのSplinePoints生成を実施
-	void DeriveWaveLinearPoints(TArray<FVector> &Points, FVector PrevPoint);
+	void DeriveWaveLinearPoints(TArray<FVector> &Points, FVector PrevPoint,
+								FVector PrevDirection, FRotator PrevRotation);
 
 	// SinカーブでのSplinePoints生成を実施
-	void DeriveWaveSinPoints(TArray<FVector> &Points, FVector PrevPoint);
+	void DeriveWaveSinPoints(TArray<FVector> &Points, FVector PrevPoint,
+							 FVector PrevDirection, FRotator PrevRotation);
 
 	// TriangleカーブでのSplinePoints生成を実施
 	void DeriveWaveTrianglePoints(TArray<FVector> &Points, FVector PrevPoint);

@@ -66,17 +66,17 @@ FSplineUnit FSplineUnit::GenerateSplineUnit(
 }
 
 // SplineUnitをPointsポインタにSplineUnitの状態に応じてセットする
-void FSplineUnit::DeriveSplinePointsAddTo(TArray<FVector> &Points, FVector PrevPoint, FVector PrevDirection)
+void FSplineUnit::DeriveSplinePointsAddTo(TArray<FVector> &Points, FVector PrevPoint,
+	                                      FVector PrevDirection, FRotator PrevRotation)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, PrevDirection.ToString());
-	// クオータニオンに移行する
+
 	switch (WaveType)
 	{
 	case ESplineUnit::WAVE_LINEAR:
-		DeriveWaveLinearPoints(Points, PrevPoint);
+		DeriveWaveLinearPoints(Points, PrevPoint, PrevDirection, PrevRotation);
 		break;
 	case ESplineUnit::WAVE_SIN:
-		DeriveWaveSinPoints(Points, PrevPoint);
+		DeriveWaveSinPoints(Points, PrevPoint, PrevDirection, PrevRotation);
 		break;
 	case ESplineUnit::WAVE_TRIANGLE:
 		DeriveWaveTrianglePoints(Points, PrevPoint);
@@ -86,15 +86,27 @@ void FSplineUnit::DeriveSplinePointsAddTo(TArray<FVector> &Points, FVector PrevP
 	}
 }
 
-void FSplineUnit::DeriveWaveLinearPoints(TArray<FVector> &Points, FVector PrevPoint)
+void FSplineUnit::DeriveWaveLinearPoints(TArray<FVector> &Points,
+	                                     FVector PrevPoint,
+										 FVector PrevDirection,
+										 FRotator PrevRotation)
 {
+	FVector PrevDirectionVertical = FRotator{ 90, 0, 0 }.RotateVector(PrevDirection);
+	PrevDirectionVertical = FVector{ 0, 0, PrevDirectionVertical.Z };
+	FQuat quat = FQuat{ PrevDirectionVertical, FMath::DegreesToRadians(PrevRotation.Yaw) };
+
 	for (auto i = 0; i < Density; i++)
 	{
-		Points.Push(PrevPoint + BetweenPoints() * i);
+		//Points.Push(PrevPoint + BetweenPoints() * i);
+		FVector NextPoint = quat.RotateVector(BetweenPoints());
+		Points.Push(PrevPoint + NextPoint * i);
 	}
 }
 
-void FSplineUnit::DeriveWaveSinPoints(TArray<FVector> &Points, FVector PrevPoint)
+void FSplineUnit::DeriveWaveSinPoints(TArray<FVector> &Points,
+									  FVector PrevPoint,
+									  FVector PrevDirection,
+									  FRotator PrevRotation)
 {
 	for (auto i = 0; i < Density; i++)
 	{

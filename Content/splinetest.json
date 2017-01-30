@@ -9,5 +9,29 @@
       "Density": 10,
       "Msec": 10
     },
+    {
+      "WaveType": "WAVE_LINEAR",
+      "Distance": [100000, 5000, 0],
+      "VertexVector": [0, 0, 0],
+      "WaveCycleCount": 1,
+      "Density": 10,
+      "Msec": 10
+    },
+    {
+      "WaveType": "WAVE_LINEAR",
+      "Distance": [5000, 0, 0],
+      "VertexVector": [0, 0, 0],
+      "WaveCycleCount": 1,
+      "Density": 10,
+      "Msec": 10
+    },
+    {
+      "WaveType": "WAVE_LINEAR",
+      "Distance": [5000, 0, 0],
+      "VertexVector": [0, 0, 0],
+      "WaveCycleCount": 1,
+      "Density": 10,
+      "Msec": 10
+    }
   ]
 }
