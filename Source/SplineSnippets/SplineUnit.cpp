@@ -97,9 +97,9 @@ void FSplineUnit::DeriveWaveLinearPoints(TArray<FVector> &Points,
 
 	for (auto i = 0; i < Density; i++)
 	{
-		//Points.Push(PrevPoint + BetweenPoints() * i);
-		FVector NextPoint = quat.RotateVector(BetweenPoints());
-		Points.Push(PrevPoint + NextPoint * i);
+		Points.Push(PrevPoint + BetweenPoints() * i);
+		//FVector NextPoint = quat.RotateVector(BetweenPoints());
+		//Points.Push(PrevPoint + NextPoint * i);
 	}
 }
 

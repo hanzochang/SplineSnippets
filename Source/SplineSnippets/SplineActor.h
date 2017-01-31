@@ -30,17 +30,16 @@ public:
 	UStaticMeshComponent* SM;
 
 	// ライフサイクル生成用パラメータ群: WIP
-	int32 DisplayableSplineUnitLimit; //前後に同時表示可能なSplineUnitの数
+	int32 DisplayableSplineUnitLimit = 4; //前後に同時表示可能なSplineUnitの数
 	TArray<float> DisplayableSplineUnitLengths;
 	float DisplayableSplineUnitLength;
 
-	int32 CurrentToSplineUnitNum;
+	int32 CurrentToSplineUnitNum = 0;
 	float CurrentSplineUnitLength;
 	float TotalSplineUnitLength;
 	int32 PrevSplineUnitPointStartNum;
 	int32 PrevSplineUnitPointEndNum;
 	float GetCurrentSplineUnitLength(USplineComponent *Spline, int32 PointStartNumber, int32 PointEndNumber);
-	bool  test;
 
 	FRotator PrevRotation = FRotator{ 0,0,0 }; // radian
 

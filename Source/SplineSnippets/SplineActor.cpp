@@ -13,9 +13,6 @@ ASplineActor::ASplineActor()
 	SetRootComponent(CreateDefaultSubobject<UStaticMeshComponent>(FName("SM")));
     MySpline = CreateDefaultSubobject<USplineComponent>(FName("MySpline"));
 	MySpline->SetupAttachment(SM);
-	test = true;
-	CurrentToSplineUnitNum = 0;
-	DisplayableSplineUnitLimit = 4;
 
 	LoadDebugGrid();
 }
@@ -89,40 +86,24 @@ float ASplineActor::GetCurrentSplineUnitLength(USplineComponent *Spline, int32 P
 
 void ASplineActor::CheckNextSplineUnitsSpawing(float CurrentLength)
 {
-	if ((CurrentLength > DisplayableSplineUnitLength) && test)
+	if (CurrentLength > DisplayableSplineUnitLength)
 	{
 
 		CurrentToSplineUnitNum = CurrentToSplineUnitNum + 1;
 		int32 RenderSplineUnitNum = CurrentToSplineUnitNum;
+
+		// loop
 		if (RenderSplineUnitNum >= SplineUnits.Num())
 		{
 			RenderSplineUnitNum = CurrentToSplineUnitNum % SplineUnits.Num();
 		}
 
 		TArray<FVector> SplinePoints;
-		SplineUnits[RenderSplineUnitNum].
-			DeriveSplinePointsAddTo(SplinePoints,
-				MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local),
-				MySpline->GetDirectionAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local),
-				MySpline->GetRotationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local)
-			);
+		SplineUnits[RenderSplineUnitNum].DeriveSplinePointsAddTo(SplinePoints,
+				MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local));
 
-
-		// wao
-		//FVector UnitVector = MySpline->GetDirectionAtDistanceAlongSpline(MySpline->GetSplineLength(), ESplineCoordinateSpace::Local);
-		//FVector UnitVectorVertical = FRotator{ 90, 0, 0 }.RotateVector(UnitVector);
-		//UnitVectorVertical = FVector{ 0, 0, UnitVectorVertical.Z };
-		//FVector Loc = MySpline->GetLocationAtSplinePoint(MySpline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::Local);
-		//FRotator Rot = MySpline->GetRotationAtSplinePoint(MySpline->GetNumberOfSplinePoints() -1, ESplineCoordinateSpace::Local);
-
-		//FVector LastSplinePoint = SplinePoints[SplinePoints.Num() - 1];
-		//FVector Ve = LastSplinePoint - Loc;
-		//Ve.Normalize();
-		//PrevRotation += FRotator{ 0,10,0 };
-		//FQuat quat = FQuat{ UnitVectorVertical, FMath::DegreesToRadians(PrevRotation.Yaw) };
 		for (auto SplinePoint : SplinePoints)
 		{
-			//MySpline->AddSplinePoint((quat.RotateVector(SplinePoint - Loc)+Loc), ESplineCoordinateSpace::Type::Local);
 			MySpline->AddSplinePoint(SplinePoint, ESplineCoordinateSpace::Type::Local);
 		};
 
