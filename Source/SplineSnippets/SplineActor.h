@@ -29,6 +29,7 @@ public:
 	UPROPERTY(VisibleAnyWhere)
 	UStaticMeshComponent* SM;
 
+	// TODO utilに移行中
 	// ライフサイクル生成用パラメータ群: WIP
 	int32 DisplayableSplineUnitLimit = 4; //前後に同時表示可能なSplineUnitの数
 	TArray<float> DisplayableSplineUnitLengths;

@@ -53,14 +53,14 @@ void ASplineActor::BeginPlay()
 	CurrentToSplineUnitNum = 0;
 	TotalSplineUnitLength = 0;
 
-	for (auto i = 0 ; i < MySpline->GetNumberOfSplinePoints(); i++) {
-		SetDebugGridsEachSplinePoints(i);
-	}
-
 	DisplayableSplineUnitLength = 0;
 	for(auto i = 0; i <= CurrentToSplineUnitNum; i++)
 	{
 		DisplayableSplineUnitLength += DisplayableSplineUnitLengths[i];
+	}
+
+	for (auto i = 0 ; i < MySpline->GetNumberOfSplinePoints(); i++) {
+		SetDebugGridsEachSplinePoints(i);
 	}
 
 }
@@ -75,12 +75,6 @@ float ASplineActor::GetCurrentSplineUnitLength(USplineComponent *Spline, int32 P
 {
 	float LastLength = Spline->GetDistanceAlongSplineAtSplinePoint(PointEndNumber);
     float StartLength = Spline->GetDistanceAlongSplineAtSplinePoint(PointStartNumber);
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::FromInt(PointEndNumber));
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::FromInt(PointStartNumber));
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::SanitizeFloat(LastLength));
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::SanitizeFloat(StartLength));
-
 	return LastLength - StartLength;
 }
 
